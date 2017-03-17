@@ -1,4 +1,4 @@
-#LMDb on OSGi
+# LMDb on OSGi
 
 Prerequisites: Java 8 and Maven 3.0.5
 
@@ -16,7 +16,7 @@ To install drop this file into the deploy folder found under the Karaf root fold
 
 Th Karaf console will output some lmdb actions.
 
-###lmdb-osgi License
+### lmdb-osgi License
 
 ### License
 
@@ -26,6 +26,6 @@ This project is licensed under the
 This project distribution JAR includes LMDB, which is licensed under
 [The OpenLDAP Public License](http://www.openldap.org/software/release/license.html).
 
-###lmdbjava:
+### lmdbjava:
 
 https://github.com/lmdbjava/lmdbjava

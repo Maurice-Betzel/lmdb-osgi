@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>lmdb-parent</artifactId>
+        <groupId>net.betzel.osgi.karaf</groupId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>lmdb</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>LMDb OSGi Karaf</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.lmdbjava</groupId>
+            <artifactId>lmdbjava</artifactId>
+            <version>0.0.5_1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jffi</artifactId>
+            <version>1.2.14</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jffi</artifactId>
+            <version>1.2.14</version>
+            <classifier>native</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jnr-ffi</artifactId>
+            <version>2.1.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jnr-constants</artifactId>
+            <version>0.9.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jnr</groupId>
+            <artifactId>jnr-x86asm</artifactId>
+            <version>1.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.12</version>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.outputDirectory}/net.betzel.osgi.karaf.lmdb.cfg</file>
+                                    <type>cfg</type>
+                                    <classifier>configuration</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.2.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Embed-Dependency>*;scope=compile;inline=true;groupId=org.lmdbjava|com.github.jnr</Embed-Dependency>
+                        <Embed-StripGroup>false</Embed-StripGroup>
+                        <Embed-Transitive>false</Embed-Transitive>
+                        <Bundle-NativeCode>org/lmdbjava/lmdbjava-native-windows-x86_64.dll;osname=Win32;processor=amd64,org/lmdbjava/lmdbjava-native-linux-x86_64.so;osname=Linux;processor=x86-64,org/lmdbjava/lmdbjava-native-osx-x86_64.dylib;osname=MacOSX;processor=x86-64</Bundle-NativeCode>
+                        <Import-Package>org.agrona.*;resolution:=optional,sun.*;resolution:=optional,*</Import-Package>
+                        <Export-Package/>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

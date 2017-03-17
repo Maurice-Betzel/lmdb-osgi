@@ -16,9 +16,7 @@ To install drop this file into the deploy folder found under the Karaf root fold
 
 Th Karaf console will output some lmdb actions.
 
-### lmdb-osgi License
-
-### License
+### lmdb-osgi license
 
 This project is licensed under the
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).

@@ -21,7 +21,7 @@ Th Karaf console will output some lmdb actions.
 This project is licensed under the
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
 
-This project distribution JAR includes LMDB, which is licensed under
+This project distribution JAR includes LMDB and LMDB binaries for different plattforms which are licensed under the
 [The OpenLDAP Public License](http://www.openldap.org/software/release/license.html).
 
 ### lmdbjava:

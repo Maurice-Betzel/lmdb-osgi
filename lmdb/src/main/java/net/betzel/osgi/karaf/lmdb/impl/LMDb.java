@@ -20,6 +20,7 @@ import org.lmdbjava.Dbi;
 import org.lmdbjava.Env;
 import org.lmdbjava.EnvInfo;
 import org.lmdbjava.Txn;
+import org.osgi.framework.BundleContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,19 +41,21 @@ import static org.lmdbjava.Env.create;
  */
 public class LMDb {
 
-    private static java.lang.reflect.Field LIBRARIES;
+    static boolean linux;
+    static boolean osx;
+    static boolean windows;
 
     static {
         final String arch = getProperty("os.arch");
         final boolean arch64 = "x64".equals(arch) || "amd64".equals(arch) || "x86_64".equals(arch);
         final String os = getProperty("os.name");
-        final boolean linux = os.toLowerCase(ENGLISH).startsWith("linux");
-        final boolean osx = os.startsWith("Mac OS X");
-        final boolean windows = os.startsWith("Windows");
+        linux = os.toLowerCase(ENGLISH).startsWith("linux");
+        osx = os.startsWith("Mac OS X");
+        windows = os.startsWith("Windows");
         if (arch64 && linux) {
-            System.loadLibrary("lmdbjava-native-linux-x86_64");
+            System.loadLibrary("lmdbjava-native-linux-x86_64.so");
         } else if (arch64 && osx) {
-            System.loadLibrary("lmdbjava-native-osx-x86_64");
+            System.loadLibrary("lmdbjava-native-osx-x86_64.dylib");
         } else if (arch64 && windows) {
             System.loadLibrary("lmdbjava-native-windows-x86_64");
         } else {
@@ -61,6 +64,7 @@ public class LMDb {
         System.out.println("LMDB binary loaded!");
     }
 
+    private BundleContext bundleContext;
     private final Path dataPath;
     private File filePath;
     private String databaseFile;
@@ -68,8 +72,13 @@ public class LMDb {
     private Env<ByteBuffer> env;
     private Dbi<ByteBuffer> dbi;
 
-    public LMDb() throws IOException, IllegalAccessException {
-        this.dataPath = Paths.get(System.getenv("KARAF_DATA"), "store");
+    public LMDb(BundleContext bundleContext) throws IOException, IllegalAccessException {
+        this.bundleContext = bundleContext;
+        if(windows) {
+            this.dataPath = Paths.get(System.getenv("KARAF_DATA"), "store");
+        } else {
+            this.dataPath = Paths.get(bundleContext.getProperty("KARAF.DATA"), "store");
+        }
     }
 
     public void init() throws IOException {

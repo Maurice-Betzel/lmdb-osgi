@@ -22,6 +22,7 @@ Copyright 2017 Maurice Betzel
     <cm:property-placeholder persistent-id="net.betzel.osgi.karaf.lmdb" update-strategy="reload"/>
 
     <bean id="consumer" class="net.betzel.osgi.karaf.lmdb.impl.LMDb" init-method="init" destroy-method="destroy">
+        <argument index="0" ref="blueprintBundleContext"/>
         <property name="databaseFile" value="${database.file}"/>
         <property name="databaseSize" value="${database.size}"/>
     </bean>

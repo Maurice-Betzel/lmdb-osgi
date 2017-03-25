@@ -20,6 +20,7 @@ import org.lmdbjava.Dbi;
 import org.lmdbjava.Env;
 import org.lmdbjava.EnvInfo;
 import org.lmdbjava.Txn;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import java.io.File;
@@ -40,6 +41,9 @@ import static org.lmdbjava.Env.create;
  * Created by mbetzel on 16.03.2017.
  */
 public class LMDb {
+
+    public static final String DISABLE_EXTRACT_PROP = "lmdbjava.disable.extract";
+    public static final String OSGI_NATIVE_LMDB_PROP = "osgi.native.lmdb";
 
     static boolean linux;
     static boolean osx;
@@ -62,6 +66,22 @@ public class LMDb {
             throw new UnsupportedOperationException("Unsupported platform or architecture");
         }
         System.out.println("LMDB binary loaded!");
+        Bundle bundle = org.osgi.framework.FrameworkUtil.getBundle(LMDb.class);
+        String bundleId = String.valueOf(bundle.getBundleId());
+        BundleContext bundleContext = bundle.getBundleContext();
+        String cachePath = bundleContext.getProperty("org.osgi.framework.storage");
+        // OSGi does not provide a bundle cache strategy
+        // Assuming native library gets unpacked within folder having this bundle ID
+        File bundlePath = locateBundlePath(cachePath, bundleId);
+        if (bundlePath == null) {
+            System.out.println("Classpath resource not found");
+        }
+        File nativeFile = locateNativeFile(bundlePath, "lmdbjava-native-");
+        if (nativeFile == null) {
+            System.out.println("Classpath resource not found");
+        }
+        System.setProperty(DISABLE_EXTRACT_PROP, "true");
+        System.setProperty(OSGI_NATIVE_LMDB_PROP, nativeFile.getAbsolutePath());
     }
 
     private BundleContext bundleContext;
@@ -74,11 +94,7 @@ public class LMDb {
 
     public LMDb(BundleContext bundleContext) throws IOException, IllegalAccessException {
         this.bundleContext = bundleContext;
-        if(windows) {
-            this.dataPath = Paths.get(System.getenv("KARAF_DATA"), "store");
-        } else {
-            this.dataPath = Paths.get(bundleContext.getProperty("KARAF.DATA"), "store");
-        }
+        this.dataPath = Paths.get(bundleContext.getProperty("KARAF.DATA"), "store");
     }
 
     public void init() throws IOException {
@@ -114,6 +130,34 @@ public class LMDb {
             throw new IllegalArgumentException("Database path is not a directory!");
         }
     }
+
+    private static File locateBundlePath(final String path, final String bundleId) {
+        File root = new File(path);
+        File[] files = root.listFiles();
+        for (File file : files) {
+            if (file.isDirectory() && file.getName().contains(bundleId)) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    private static File locateNativeFile(File rootFile, String search) {
+        if (rootFile.isDirectory()) {
+            File[] files = rootFile.listFiles();
+            for (File file : files) {
+                File found = locateNativeFile(file, search);
+                if (found != null)
+                    return found;
+            }
+        } else {
+            if (rootFile.getName().toLowerCase().startsWith(search)) {
+                return rootFile;
+            }
+        }
+        return null;
+    }
+
 
     public void destroy() {
         dbi.close();

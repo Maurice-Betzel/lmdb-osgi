@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.lmdbjava</groupId>
             <artifactId>lmdbjava</artifactId>
-            <version>0.0.5_1</version>
+            <version>0.0.5_2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

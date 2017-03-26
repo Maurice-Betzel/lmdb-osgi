@@ -43,7 +43,7 @@ import static org.lmdbjava.Env.create;
 public class LMDb {
 
     public static final String DISABLE_EXTRACT_PROP = "lmdbjava.disable.extract";
-    public static final String OSGI_NATIVE_LMDB_PROP = "osgi.native.lmdb";
+    public static final String LMDB_NATIVE_LIB_PROP = "lmdbjava.native.lib";
 
     static boolean linux;
     static boolean osx;
@@ -81,7 +81,7 @@ public class LMDb {
             System.out.println("Classpath resource not found");
         }
         System.setProperty(DISABLE_EXTRACT_PROP, "true");
-        System.setProperty(OSGI_NATIVE_LMDB_PROP, nativeFile.getAbsolutePath());
+        System.setProperty(LMDB_NATIVE_LIB_PROP, nativeFile.getAbsolutePath());
     }
 
     private BundleContext bundleContext;

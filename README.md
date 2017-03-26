@@ -6,7 +6,7 @@ Download Apache Karaf 4.0.8, extract and startup
 
 https://karaf.apache.org/download.html
 
-Checkout and build lmdbjava 0.0.5_2 from https://github.com/Maurice-Betzel/lmdb-java/tree/lmdb-java-osgi
+Checkout and build lmdbjava 0.0.5_2 from https://github.com/Maurice-Betzel/lmdb-java/tree/0.0.5_2
 
 This contains a OSGi enabled native library classloader mechanism for Apache Karaf.
 

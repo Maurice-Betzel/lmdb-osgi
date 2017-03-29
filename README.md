@@ -8,7 +8,7 @@ https://karaf.apache.org/download.html
 
 Checkout and build lmdbjava 0.0.6-SNAPSHOT
 
-This contains a OSGi enabled native library classloader mechanism for Apache Karaf.
+https://github.com/lmdbjava/lmdbjava
 
 Build this project producing the file lmdb-1.0.0.jar.
 

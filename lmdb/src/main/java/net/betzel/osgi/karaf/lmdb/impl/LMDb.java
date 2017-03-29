@@ -62,7 +62,7 @@ public class LMDb {
         } else {
             throw new UnsupportedOperationException("Unsupported platform or architecture");
         }
-        System.out.println("LMDB binary loaded, setting lmdbjava path to lmdb");
+        System.out.println("LMDB binary extracted and loaded, setting lmdbjava path to lmdb binary");
         Bundle bundle = FrameworkUtil.getBundle(LMDb.class);
         String bundleId = String.valueOf(bundle.getBundleId());
         BundleContext context = bundle.getBundleContext();
@@ -71,14 +71,14 @@ public class LMDb {
         // Assuming native library gets unpacked within folder having this bundle ID
         File bundlePath = locateBundlePath(cachePath, bundleId);
         File nativeFile = locateNativeFile(bundlePath, "lmdbjava-native-");
-        System.out.println("OSGi path to LMDB binary: " + nativeFile.getAbsolutePath());
+        System.out.println("OSGi path to lmdb binary: " + nativeFile.getAbsolutePath());
         System.setProperty("lmdbjava.native.lib", nativeFile.getAbsolutePath());
     }
 
     private BundleContext bundleContext;
     private final Path dataPath;
     private File filePath;
-    private String databaseFile;
+    private String databaseName;
     private int databaseSize;
     private Env<ByteBuffer> env;
     private Dbi<ByteBuffer> dbi;
@@ -89,7 +89,6 @@ public class LMDb {
     }
 
     public void init() throws IOException {
-        System.out.println("Init!");
         if (Files.exists(dataPath)) {
             filePath = dataPath.toFile();
         } else {
@@ -101,7 +100,7 @@ public class LMDb {
                     .setMaxDbs(1)
                     .open(filePath);
             EnvInfo infos = env.info();
-            dbi = env.openDbi(databaseFile, MDB_CREATE);
+            dbi = env.openDbi(databaseName, MDB_CREATE);
             ByteBuffer key = allocateDirect(env.getMaxKeySize());
             ByteBuffer val = allocateDirect(700);
             key.put("greeting".getBytes(UTF_8)).flip();
@@ -154,8 +153,8 @@ public class LMDb {
         env.close();
     }
 
-    public void setDatabaseFile(String databaseFile) {
-        this.databaseFile = databaseFile;
+    public void setDatabaseName(String databaseName) {
+        this.databaseName = databaseName;
     }
 
     public void setDatabaseSize(int databaseSize) {

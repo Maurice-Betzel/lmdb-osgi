@@ -16,34 +16,35 @@ Copyright 2017 Maurice Betzel
 
 package net.betzel.osgi.karaf.lmdb.impl;
 
-import org.lmdbjava.Dbi;
-import org.lmdbjava.Env;
-import org.lmdbjava.EnvInfo;
-import org.lmdbjava.Txn;
-import org.osgi.framework.BundleContext;
-
 import java.io.File;
 import java.io.IOException;
+import static java.lang.System.getProperty;
 import java.nio.ByteBuffer;
+import static java.nio.ByteBuffer.allocateDirect;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static java.lang.System.getProperty;
-import static java.nio.ByteBuffer.allocateDirect;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Locale.ENGLISH;
+import static java.util.Objects.nonNull;
+import org.lmdbjava.Dbi;
 import static org.lmdbjava.DbiFlags.MDB_CREATE;
+import org.lmdbjava.Env;
 import static org.lmdbjava.Env.create;
+import org.lmdbjava.EnvInfo;
+import org.lmdbjava.Txn;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * Created by mbetzel on 16.03.2017.
  */
 public class LMDb {
 
-    static boolean linux;
-    static boolean osx;
-    static boolean windows;
+    private static boolean linux;
+    private static boolean osx;
+    private static boolean windows;
 
     static {
         final String arch = getProperty("os.arch");
@@ -61,7 +62,17 @@ public class LMDb {
         } else {
             throw new UnsupportedOperationException("Unsupported platform or architecture");
         }
-        System.out.println("LMDB binary loaded!");
+        System.out.println("LMDB binary loaded, setting lmdbjava path to lmdb");
+        Bundle bundle = FrameworkUtil.getBundle(LMDb.class);
+        String bundleId = String.valueOf(bundle.getBundleId());
+        BundleContext context = bundle.getBundleContext();
+        String cachePath = context.getProperty("org.osgi.framework.storage");
+        // OSGi does not provide a bundle cache strategy
+        // Assuming native library gets unpacked within folder having this bundle ID
+        File bundlePath = locateBundlePath(cachePath, bundleId);
+        File nativeFile = locateNativeFile(bundlePath, "lmdbjava-native-");
+        System.out.println("OSGi path to LMDB binary: " + nativeFile.getAbsolutePath());
+        System.setProperty("lmdbjava.native.lib", nativeFile.getAbsolutePath());
     }
 
     private BundleContext bundleContext;
@@ -74,11 +85,7 @@ public class LMDb {
 
     public LMDb(BundleContext bundleContext) throws IOException, IllegalAccessException {
         this.bundleContext = bundleContext;
-        if(windows) {
-            this.dataPath = Paths.get(System.getenv("KARAF_DATA"), "store");
-        } else {
-            this.dataPath = Paths.get(bundleContext.getProperty("KARAF.DATA"), "store");
-        }
+        this.dataPath = Paths.get(bundleContext.getProperty("KARAF.DATA"), "store");
     }
 
     public void init() throws IOException {
@@ -113,6 +120,33 @@ public class LMDb {
         } else {
             throw new IllegalArgumentException("Database path is not a directory!");
         }
+    }
+
+    private static File locateBundlePath(final String path, final String bundleId) {
+        File root = new File(path);
+        File[] files = root.listFiles();
+        for (File file : files) {
+            if (file.isDirectory() && file.getName().contains(bundleId)) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    private static File locateNativeFile(File rootFile, String search) {
+        if (rootFile.isDirectory()) {
+            File[] files = rootFile.listFiles();
+            for (File file : files) {
+                File found = locateNativeFile(file, search);
+                if (nonNull(found))
+                    return found;
+            }
+        } else {
+            if (rootFile.getName().toLowerCase().startsWith(search)) {
+                return rootFile;
+            }
+        }
+        return null;
     }
 
     public void destroy() {

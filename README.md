@@ -12,7 +12,8 @@ This contains a OSGi enabled native library classloader mechanism for Apache Kar
 
 Build this project producing the file lmdb-1.0.0.jar.
 
-To install drop this file into the deploy folder found under the Karaf root folder.
+To install drop the cfg file into the etc folder and the jar into the deploy folder,
+both found in the Karaf root folder.
 
 Th Karaf console will output some lmdb actions.
 

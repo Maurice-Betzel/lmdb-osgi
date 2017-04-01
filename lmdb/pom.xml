@@ -22,6 +22,7 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <version>6.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.lmdbjava</groupId>
@@ -59,12 +60,6 @@
             <artifactId>jnr-x86asm</artifactId>
             <version>1.0.2</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>4.3.1</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
